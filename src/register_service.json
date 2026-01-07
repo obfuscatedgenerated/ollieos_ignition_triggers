@@ -1,0 +1,4 @@
+{
+  "install_exec": "trigger_ignition_register_service",
+  "uninstall_exec": "trigger_ignition_unregister_service"
+}

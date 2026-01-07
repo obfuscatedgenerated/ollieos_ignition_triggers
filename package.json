@@ -1,8 +1,8 @@
 {
-  "name": "hwpkg",
-  "version": "1.0.2",
-  "description": "An example package named hwpkg that prints a hello message for OllieOS.",
-  "main": "./src/index.ts",
+  "name": "ignition_triggers",
+  "version": "1.0.0",
+  "description": "pkg triggers to interact with ignition",
+  "main": "src/trigger_ignition_register_service.ts",
   "scripts": {
     "build": "webpack --mode=production",
     "watch": "webpack --watch --mode=development",
