@@ -17,7 +17,8 @@ export default {
 
         const fs = term.get_fs();
 
-        const [pkg_name, pkg_version, service_file] = args;
+        const pkg_name = args[0];
+        const service_file = JSON.parse(args[2]);
 
         // service must end with .service.json
         if (!service_file.endsWith(".service.json")) {

@@ -17,7 +17,8 @@ export default {
 
         const fs = term.get_fs();
 
-        const [pkg_name, pkg_version, service_file] = args;
+        const pkg_name = args[0];
+        const service_file = JSON.parse(args[2]);
 
         // service must end with .service.json
         if (!service_file.endsWith(".service.json")) {
@@ -28,7 +29,7 @@ export default {
         const service_path = fs.join("/usr/bin", pkg_name, service_file);
 
         if (!await fs.exists(service_path)) {
-            term.writeln(`Service file ${service_file} does not exist for package ${pkg_name} version ${pkg_version}.`);
+            term.writeln(`Service file ${service_file} does not exist for package ${pkg_name}.`);
             return 1;
         }
 
