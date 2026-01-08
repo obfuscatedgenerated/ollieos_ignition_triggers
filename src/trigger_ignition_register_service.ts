@@ -47,8 +47,13 @@ export default {
         const service_content = await fs.read_file(service_path);
         await fs.write_file(dest_path, service_content);
 
-        // TODO: when service CLI exists, tell it to start the service
+        // invoke spark to reload-services and start the new service
+        // TODO: use spawn?
+        console.log("Starting new service:", service_basename);
+        await term.execute("spark reload-services");
+        await term.execute(`spark service start ${service_basename!.replace(".service.json", "")}`);
 
+        // TODO: make exit code reflect success of above operations
         return 0;
     }
 } as Program;

@@ -36,9 +36,13 @@ export default {
             return 1;
         }
 
-        // TODO: when service CLI exists, tell it to stop the service
-
         await fs.delete_file(dest_path);
+
+        // invoke spark to stop the old service and reload-services
+        // TODO: use spawn?
+        console.log("Stopping old service:", service_basename);
+        await term.execute(`spark service stop ${service_basename!.replace(".service.json", "")}`);
+        await term.execute("spark reload-services");
 
         return 0;
     }
