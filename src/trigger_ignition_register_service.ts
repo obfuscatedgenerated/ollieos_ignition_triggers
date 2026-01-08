@@ -54,6 +54,7 @@ export default {
         await term.execute(`spark service start ${service_basename!.replace(".service.json", "")}`);
 
         // TODO: make exit code reflect success of above operations
+        // TODO: ability to pass object to tell it to not start the service immediately
         return 0;
     }
 } as Program;
