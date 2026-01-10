@@ -6,16 +6,17 @@ export default {
     usage_suffix: "",
     arg_descriptions: {},
     hide_from_help: true,
+    compat: "2.0.0",
     main: async (data) => {
         // extract from data to make code less verbose
-        const { term, args } = data;
+        const { kernel, shell, term, args } = data;
 
         if (args.length !== 3) {
             term.writeln("Usage: trigger_ignition_register_service pkg_name pkg_version serivce_file");
             return 1;
         }
 
-        const fs = term.get_fs();
+        const fs = kernel.get_fs();
 
         const pkg_name = args[0];
         const service_file = JSON.parse(args[2]);
@@ -48,10 +49,29 @@ export default {
         await fs.write_file(dest_path, service_content);
 
         // invoke spark to reload-services and start the new service
-        // TODO: use spawn?
         console.log("Starting new service:", service_basename);
-        await term.execute("spark reload-services");
-        await term.execute(`spark service start ${service_basename!.replace(".service.json", "")}`);
+
+        try {
+            const reload = kernel.spawn("spark", ["reload-services"], shell);
+            const reload_code = await reload.completion;
+
+            if (reload_code !== 0) {
+                term.writeln(`Warning: exit code ${reload_code} to reload services`);
+            }
+        } catch {
+            term.writeln("Warning: failed to reload services");
+        }
+
+        try {
+            const start = kernel.spawn("spark", ["service", "start", service_basename!.replace(".service.json", "")], shell);
+            const start_code = await start.completion;
+
+            if (start_code !== 0) {
+                term.writeln(`Warning: exit code ${start_code} when trying to start service ${service_basename}`);
+            }
+        } catch {
+            term.writeln(`Warning: failed to start service ${service_basename}`);
+        }
 
         // TODO: make exit code reflect success of above operations
         // TODO: ability to pass object to tell it to not start the service immediately
