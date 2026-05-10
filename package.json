@@ -1,6 +1,6 @@
 {
   "name": "ignition_triggers",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "pkg triggers to interact with ignition",
   "main": "src/trigger_ignition_register_service.ts",
   "scripts": {

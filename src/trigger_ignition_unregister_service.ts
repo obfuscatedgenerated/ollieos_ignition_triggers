@@ -34,6 +34,7 @@ export default {
         }
 
         // if service is registering to the privileged subdirectory, need to escalate
+        let is_privileged = false;
         if (service_file.startsWith("privileged/")) {
             const priv_kernel = await kernel.request_privilege(`${pkg_name} wishes to unregister a privileged service at ${service_file}`);
             if (!priv_kernel) {
@@ -42,6 +43,7 @@ export default {
             }
 
             effective_kernel = priv_kernel;
+            is_privileged = true;
         }
 
         const fs = effective_kernel.get_fs();
@@ -50,7 +52,7 @@ export default {
         const service_basename = service_file.split("/").pop();
 
         // check the destination path already exists
-        const dest_path = fs.join("/etc/services", service_basename!);
+        const dest_path = fs.join("/etc/services", is_privileged ? `privileged/${service_basename}` : service_basename!);
         if (!await fs.exists(dest_path)) {
             term.writeln(`Service file at ${dest_path} does not exist.`);
             return 1;
