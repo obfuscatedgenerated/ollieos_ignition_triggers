@@ -1,4 +1,5 @@
 import type { Program } from "ollieos/types";
+import {Kernel, UserspaceKernel} from "ollieos/kernel";
 
 export default {
     name: "trigger_ignition_register_service",
@@ -10,13 +11,12 @@ export default {
     main: async (data) => {
         // extract from data to make code less verbose
         const { kernel, shell, term, args } = data;
+        let effective_kernel: UserspaceKernel | Kernel = kernel;
 
         if (args.length !== 3) {
-            term.writeln("Usage: trigger_ignition_register_service pkg_name pkg_version serivce_file");
+            term.writeln("Usage: trigger_ignition_register_service pkg_name pkg_version service_file");
             return 1;
         }
-
-        const fs = kernel.get_fs();
 
         const pkg_name = args[0];
         const service_file = JSON.parse(args[2]);
@@ -26,6 +26,25 @@ export default {
             term.writeln("Error: service file must end with .service.json");
             return 1;
         }
+
+        // prevent directory traversal in service file path
+        if (service_file.includes("..")) {
+            term.writeln("Error: service file path cannot contain ..");
+            return 1;
+        }
+
+        // if service is registering to the privileged subdirectory, need to escalate
+        if (service_file.startsWith("privileged/")) {
+            const priv_kernel = await kernel.request_privilege(`${pkg_name} wishes to register a privileged service at ${service_file}`);
+            if (!priv_kernel) {
+                term.writeln("Error: privilege request denied");
+                return 1;
+            }
+
+            effective_kernel = priv_kernel;
+        }
+
+        const fs = effective_kernel.get_fs();
 
         const service_path = fs.join("/usr/bin", pkg_name, service_file);
 
