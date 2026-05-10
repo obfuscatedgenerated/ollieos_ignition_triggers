@@ -90,6 +90,8 @@ export default {
             if (start_code !== 0) {
                 term.writeln(`Warning: exit code ${start_code} when trying to start service ${service_basename}`);
             }
+
+            start.process.kill(start_code);
         } catch {
             term.writeln(`Warning: failed to start service ${service_basename}`);
         }

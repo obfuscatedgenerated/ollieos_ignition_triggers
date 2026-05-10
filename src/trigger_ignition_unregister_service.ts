@@ -70,6 +70,8 @@ export default {
             if (stop_code !== 0) {
                 term.writeln(`Warning: exit code ${stop_code} when trying to stop service ${service_basename}`);
             }
+
+            stop.process.kill(stop_code);
         } catch {
             term.writeln(`Warning: failed to stop service ${service_basename}`);
         }
